@@ -1,6 +1,6 @@
 # presence
 
-# flow
+## flow
 ```
 "xuids0" - All xuids found with friends/clubs & offline > 1 year
    |
@@ -34,6 +34,9 @@ if lastutime < now() - interval '1 year'
 
 ```
 
+## presence
+
+```
 presence:
  - measure the time for full cycle
 	"perflog":
@@ -41,7 +44,7 @@ presence:
 		xuids 	- processed
 		secs	- spent
 		num		- process number
-
+```
 
 
 
