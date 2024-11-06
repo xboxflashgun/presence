@@ -1,7 +1,7 @@
 # presence
 
 # flow
-
+```
 "xuids0" - All xuids found with brutforce & friends/clubs
    |
    +---> lastscan.pl - check if xuid is/was online ---> "xuids1"
@@ -30,4 +30,4 @@ clipscan -> "xuids0"
 if lastutime < now() - interval '1 year'
 	- move to "xuids0" (gone offline)
 
-
+```
