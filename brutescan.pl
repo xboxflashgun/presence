@@ -14,22 +14,22 @@ use Xboxnew;
 
 if(@ARGV != 1)  {
 
-	print "\n  usage: $0 [authid,div,total]\n\n";
+	print "\n  usage: $0 [div,total]\n\n";
 	exit 0;
 
 }
 
-my ($authid, $div, $totauth) = split ",", $ARGV[0];
+my ($div, $totauth) = split ",", $ARGV[0];
 $|++;
 my %grainer;
 
 my $coder = Cpanel::JSON::XS->new->allow_nonref->allow_blessed;
 
 my $dbh = DBI->connect("dbi:Pg:dbname=global;port=6432") || die;
-$dbh->do("insert into progstat values(now(), $$, $authid, $div, 'brutescan')");
+$dbh->do("insert into progstat values(now(), $$, $div, $div, 'brutescan')");
 $dbh->disconnect;
 
-my $xbl = Xboxnew->new($authid);
+my $xbl = Xboxnew->new($div);
 $dbh = $xbl->dbh;
 
 print "Starting $$\n";
