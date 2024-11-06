@@ -18,6 +18,8 @@
 
 gameclipscan -> "xuids0"
 
+oldscan: "xuids0" -> "xuids1"
+
 "xuids0" - all offline xuids
 	xuid
 
