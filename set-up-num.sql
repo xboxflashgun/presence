@@ -12,7 +12,7 @@ update progs set num =  0 where prog = 'gameclipscan';
 update progs set num =  0 where prog =     'heroscan';
 update progs set num =  0 where prog =   'memberscan';
 update progs set num = 84 where prog =     'presence';
-update progs set num =  0 where prog =     'lastscan';
+update progs set num = 42 where prog =     'lastscan';
 update progs set num = 84 where prog =    'brutescan';
 
 select * from progs order by num;
