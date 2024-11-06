@@ -40,7 +40,7 @@ while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0]
 
 	my $sttime = time;
 
-	my @all = map { $_->[0] } @{$xbl->getall("select xuid from xuids0 where xuid % $totauth = $div")};
+	my @all = map { $_->[0] } @{$xbl->getall("select xuid from xuids0 where xuid % $totauth = $div order by scanned nulls first limit 1095*50")};
 	my $total = scalar(@all);
 
 	my $num = 0;
@@ -98,6 +98,10 @@ sub process_batch	{
 
 			$num += $dbh->do('insert into xuids1(xuid) values($1) on conflict(xuid) do nothing', undef, $j->{xuid});
 			$dbh->do('delete from xuids0 where xuid=$1', undef, $j->{xuid});
+
+		} else {
+
+			$dbh->do('update xuids0 set scanned=now() where xuid=$1', undef, $j->{xuid});
 
 		}
 

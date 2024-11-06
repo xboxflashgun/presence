@@ -5,7 +5,7 @@
 --
 
 update progs set num =  0 where prog =   'friendscan';
-update progs set num =  0 where prog =   'localescan';
+update progs set num = 42 where prog =   'localescan';
 update progs set num =  0 where prog =     'playscan';
 update progs set num =  0 where prog =     'clubscan';
 update progs set num =  0 where prog = 'gameclipscan';

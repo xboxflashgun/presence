@@ -34,7 +34,11 @@ BEGIN
 	left join xuids0 on (xuids0.xuid = x)
 	left join xuids1 on (xuids1.xuid = x)
 	where gamers.xuid is null 
+	and xuids0.xuid is null
+	and xuids1.xuid is null
 	into xuidstr;
+
+	raise notice 'number of commas: %', (length(xuidstr)-16)/17 +1;
 
 	return '{"level":"all","users":[' || xuidstr || ']}';
 
