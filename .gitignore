@@ -3,3 +3,7 @@ brutescan.pl
 presence.pl
 runner.pl
 givegrants.sh
+kill-all.sh
+kill-graceful.sh
+kill-prog.sh
+logs/
