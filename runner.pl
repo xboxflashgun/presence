@@ -151,7 +151,7 @@ sub run_progs	{
 
 			print "Creating index for presence: 2\n";
 			$dbh->do("drop index presnullind");
-			$dbh->do("create index presnullind on presence ((xuid % 84)) where secs is null");
+			$dbh->do("create index presnullind on presence ((xuid % $num)) where secs is null");
 
 		}
 
@@ -168,7 +168,7 @@ sub run_progs	{
 
 			print "Creating index for lastscan\n";
 			$dbh->do("drop index xuids0_last_idx");
-			$dbh->do("create index xuids0_last_idx on xuids0((xuid % 42::bigint))");
+			$dbh->do("create index xuids0_last_idx on xuids0((xuid % ${num} ::bigint))");
 
 		}
 
@@ -191,9 +191,15 @@ sub run_progs	{
 
 	if( $prog eq 'localescan')	{	# create index
 
-		print "Creating index localescanidx\n";
-		$dbh->do("drop index localescanidx");
-		$dbh->do("create index localescanidx on gamers((xuid % $num), locscan NULLS FIRST)");
+		my $def = ($dbh->selectrow_array("select indexdef from pg_indexes where indexname='xuids1_locind'"))[0];
+
+		# CREATE INDEX xuids1_locind ON public.xuids1 USING btree (((xuid % (42)::bigint)), scanned NULLS FIRST)
+		if($def =~ /xuid % \($num\)::bigint/) {
+			print "localescan index is up to date\n";
+		} else {
+			print "Creating index xuids1_locind\n";
+			$dbh->do("drop index xuids1_locind");
+			$dbh->do("create index xuids1_locind on xuids1 ((xuid % ${num} ::bigint), scanned nulls first)");
 
 	}
 
