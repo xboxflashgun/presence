@@ -54,7 +54,6 @@ my $time = time + 60;
 
 while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] > 0)	{
 
-	$dbh->do('delete from xuids1 where xuid=any(select xuid from gamers where xuid % $1 = $2)', undef, $totauth, $div);
 	$all = $xbl->getall("select xuid from xuids1 where xuid % $totauth = $div order by scanned nulls first");
 
 	my $total = 0;
@@ -141,7 +140,7 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 		die "New country/lang: $2/$1" if not defined $langid or not defined $countryid;
 
 		$dbh->begin_work;
-		$dbh->do('insert into gamers(xuid,langid,countryid) values($1,$2,$3)', undef, $xuid, $langid, $countryid);
+		$dbh->do('insert into gamers(xuid,langid,countryid) values($1,$2,$3) on conflict(xuid) do nothing', undef, $xuid, $langid, $countryid);
 		$dbh->do('delete from xuids1 where xuid=$1', undef, $xuid);
 		$dbh->commit;
 

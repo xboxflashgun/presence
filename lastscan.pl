@@ -54,7 +54,7 @@ while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0]
 
 	}
 
-	print "Full cycle for $total xuids finished in ", time-$sttime, " secs\n";
+	print "Full cycle for $total xuids finished in ", time-$sttime, " secs, moved $num xuids\n";
 	$totcnt += $num;
 
 }
@@ -90,10 +90,10 @@ sub process_batch	{
 
 	my $num = 0;
 
-	$dbh->do("begin");
 	foreach $j (@$json)	{
 
 		my $jstate = $j->{state};
+		$dbh->do("begin");
 		if( $jstate ne 'Offline' or defined($j->{lastSeen}))	{
 
 			$num += $dbh->do('insert into xuids1(xuid) values($1) on conflict(xuid) do nothing', undef, $j->{xuid});
@@ -104,9 +104,9 @@ sub process_batch	{
 			$dbh->do('update xuids0 set scanned=now() where xuid=$1', undef, $j->{xuid});
 
 		}
+		$dbh->do("commit");
 
 	}
-	$dbh->do("commit");
 
 	return $num;
 
