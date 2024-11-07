@@ -50,7 +50,7 @@ print "Starting $$\n";
 
 print "Clean-up after last exit\n";
 
-my $half = ($dbh->selectrow_array("with tab as (select secs from perflog order by prestime desc limit 3) select avg(secs)/2 as half from tab"))[0];
+my $half = ($dbh->selectrow_array("with tab as (select secs from perflog where prog='presence' order by prestime desc limit 3) select avg(secs)/2 as half from tab"))[0];
 
 my $maxutime = ($dbh->selectrow_array("
 	select max(utime) from presence where xuid % $totauth = $div and utime > extract(epoch from now()-interval'1 week')::int"))[0];
@@ -100,7 +100,7 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 	my $time = time;
 	my $cycle = int(time - $sttime);
 	
-	$half = ($dbh->selectrow_array("with tab as (select secs from perflog order by prestime desc limit 3) select avg(secs)/2 as half from tab"))[0];
+	$half = ($dbh->selectrow_array("with tab as (select secs from perflog where prog='presence' order by prestime desc limit 3) select avg(secs)/2 as half from tab"))[0];
 
 	$dbh->do("begin");
 	foreach $x (keys %delcand)	{
@@ -119,7 +119,7 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 
 	$cycle = int(time - $sttime);
 	print strftime("%c $num online, full cycle = $cycle secs for $total gamers\n", localtime); 
-	$dbh->do('insert into perflog(num,xuids,secs,prestime) values($1,$2,$3,now())', undef, $div, $total, $cycle);
+	$dbh->do('insert into perflog(num,xuids,secs,prestime,prog) values($1,$2,$3,now(),$4)', undef, $div, $total, $cycle, 'presence');
 
 	if(time >= $stoptime)	{
 

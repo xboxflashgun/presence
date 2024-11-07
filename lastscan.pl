@@ -54,6 +54,7 @@ while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0]
 
 	}
 
+	$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'lastscan', $total, time-$sttime, $div);
 	print "Full cycle for $total xuids finished in ", time-$sttime, " secs, moved $num xuids\n";
 	$totcnt += $num;
 

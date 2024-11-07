@@ -50,20 +50,16 @@ foreach $l ($dbh->selectall_array("select langid,lang from languages")) {
 
 }
 
-my $time = time + 60;
+my $time = time + 600;
+my $usercnt = 0;
 
 while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] > 0)	{
 
-	$all = $xbl->getall("select xuid from xuids1 where xuid % $totauth = $div order by scanned nulls first");
-
-	my $total = 0;
-	my $userstotal = scalar(@$all);
-	my $usercnt = 0;
+	$all = $xbl->getall("select xuid from xuids1 where xuid % $totauth = $div order by scanned nulls first limit 1000");
 
 	foreach $x (@$all)	{
 
 		grain("shots");
-		$usercnt++;
 
 		$xuid = $x->[0];
 
@@ -143,13 +139,16 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 		$dbh->do('insert into gamers(xuid,langid,countryid) values($1,$2,$3) on conflict(xuid) do nothing', undef, $xuid, $langid, $countryid);
 		$dbh->do('delete from xuids1 where xuid=$1', undef, $xuid);
 		$dbh->commit;
+		$usercnt++;
 
 		last if( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] < 1);
 
 		if(time > $time)	{
 
-			$time = time + 60;
+			$time = time + 600;
 			print "Calls: $calls, Clips: $clips, Shots: $shots in a minute for $div\n";
+			$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'localescan', $usercnt, 600, $div);
+			$usercnt = 0;
 
 		}
 

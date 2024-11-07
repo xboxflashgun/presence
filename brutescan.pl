@@ -43,6 +43,7 @@ while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0]
 	if(time > $time)	{
 
 		print "$num out of $outof in 10 minutes added\n";
+		$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'brutescan', $num, 600, $div);
 		$time = time + 600;
 		($num, $outof) = (0, 0);
 
