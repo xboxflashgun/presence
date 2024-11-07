@@ -38,7 +38,7 @@ BEGIN
 	and xuids1.xuid is null
 	into xuidstr;
 
-	raise notice 'number of commas: %', (length(xuidstr)-16)/17 +1;
+	-- raise notice 'number of commas: %', (length(xuidstr)-16)/17 +1;
 
 	return '{"level":"all","users":[' || xuidstr || ']}';
 

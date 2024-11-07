@@ -91,6 +91,14 @@ sub process_batch	{
 
 	my $num = 0;
 
+	if(ref($json) eq 'HASH') {
+
+		print Dumper($json);
+		sleep 3;
+		return 0;
+
+	}
+
 	foreach $j (@$json)	{
 
 		my $jstate = $j->{state};
@@ -118,7 +126,7 @@ sub grain   {
 
 	my $req = shift;
 
-	my $sussecs = 300.5;
+	my $sussecs = 400.5;
 	my $susreqs = 100;
 
 	push(@{$grainer{$req}}, time);

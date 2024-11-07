@@ -98,6 +98,8 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 
 		}
 
+		last if( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] < 1);
+
 		if(defined($json2))	{
 		
 			foreach $clip (@{$json2->{'gameClips'}})		{
@@ -140,8 +142,6 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 		$dbh->do('delete from xuids1 where xuid=$1', undef, $xuid);
 		$dbh->commit;
 		$usercnt++;
-
-		last if( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] < 1);
 
 		if(time > $time)	{
 
