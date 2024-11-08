@@ -94,6 +94,7 @@ sub process_batch	{
 	if(ref($json) eq 'HASH') {
 
 		print Dumper($json);
+		print Dumper($req);
 		sleep 3;
 		return 0;
 

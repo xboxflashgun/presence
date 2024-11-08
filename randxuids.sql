@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION getrandxuids2(div int, totauth int) RETURNS text 
+CREATE OR REPLACE FUNCTION getrandxuids(div int, totauth int) RETURNS text 
 VOLATILE AS $$
 DECLARE
 
