@@ -75,8 +75,26 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 		$xbl->do("begin");
 		foreach $clip (@{$json->{'gameClips'}})	{
 
-			$cnt += $dbh->do('insert into xuids0(xuid) values($1) on conflict(xuid) do nothing', undef, $clip->{'xuid'})
-				if defined $clip->{'xuid'};
+			my $locale = $clip->{'gameClipLocale'};
+			next if not defined $locale;
+
+			$locale =~ /(\w\w)-(\w\w)/;
+			my ($langid, $countryid) = ($langs{$1}, $countries{$2});
+
+			die "New country/lang: $2/$1" if not defined $langid or not defined $countryid;
+
+			my $xuid = $clip->{'xuid'};
+
+			if( defined(($dbh->selectrow_array('select 1 from gamers where xuid=$1', undef, $xuid))[0]))	{
+				;
+			} else {
+
+				$cnt += $dbh->do('
+					insert into xuids2(xuid,countryid,langid) values($1,$2,$3) 
+					on conflict(xuid) do nothing', undef, $xuid, $countryid, $langid)
+				if defined $xuid;
+
+			}
 
 		}
 		$xbl->do("commit");
@@ -87,7 +105,7 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 
 	}
 
-	print "$megacnt gamers added\n";
+	print "$megacnt gamers added in ",time-$sttime," seconds\n";
 	$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'gameclipscan', $megacnt, time-$sttime, $div);
 
 }

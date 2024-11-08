@@ -50,7 +50,8 @@ foreach $l ($dbh->selectall_array("select langid,lang from languages")) {
 
 }
 
-my $time = time + 600;
+my $LOGTIME = 600;	# seconds before reporting
+my $time = time + $LOGTIME;
 my $usercnt = 0;
 
 while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] > 0)	{
@@ -145,10 +146,11 @@ while( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0
 
 		if(time > $time)	{
 
-			$time = time + 600;
-			print "Calls: $calls, Clips: $clips, Shots: $shots in a minute for $div\n";
-			$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'localescan', $usercnt, 600, $div);
+			my $et = $LOGTIME + time - $time;	# elapsed time
+			print "Calls: $calls, Clips: $clips, Shots: $shots, Usercnt: $usercnt in $et secs\n";
+			$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'localescan', $usercnt, $et, $div);
 			$usercnt = 0;
+			$time = time + $LOGTIME;
 
 		}
 

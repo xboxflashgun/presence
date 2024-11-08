@@ -26,7 +26,7 @@ my %grainer;
 my $coder = Cpanel::JSON::XS->new->allow_nonref->allow_blessed;
 
 my $dbh = DBI->connect("dbi:Pg:dbname=global;port=6432") || die;
-$dbh->do("insert into progstat values(now(), $$, $div, $div, 'lastscan')");
+$dbh->do("insert into progstat values(now(), $$, $div, $div, 'clipscan')");
 $dbh->disconnect;
 
 my $xbl = Xboxnew->new($div);
@@ -40,21 +40,27 @@ while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0]
 
 	my $sttime = time;
 
-	my @all = map { $_->[0] } @{$xbl->getall("select xuid from xuids0 where xuid % $totauth = $div order by scanned nulls first limit 1095*50")};
+	my @all = map { $_->[0] } @{$xbl->getall("
+		select xuid 
+		from xuids2 
+		where 
+			scanned < now()-interval '6 hours' 
+			or scanned is null
+		order by scanned nulls first 
+		limit 1095
+	")};
 	my $total = scalar(@all);
+
+	last if scalar(@all) == 0;
 
 	my $num = 0;
 	
-	while( my @slice = splice(@all, 0, 1095) )  {
+	$num += process_batch( \@all );
 
-		$num += process_batch( \@slice );
+	last if( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] < 1);
+	$dbh->do("update progstat set uptime=now() where pid=$$");
 
-		last if( ($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] < 1);
-		$dbh->do("update progstat set uptime=now() where pid=$$");
-
-	}
-
-	$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'lastscan', $total, time-$sttime, $div);
+	$dbh->do('insert into perflog(prog,prestime,xuids,secs,num) values($1,now(),$2,$3,$4)', undef, 'clipscan', $total, time-$sttime, $div);
 	print "Full cycle for $total xuids finished in ", time-$sttime, " secs, moved $num xuids\n";
 	$totcnt += $num;
 
@@ -77,7 +83,7 @@ sub process_batch	{
 		'users' => $xuidlist
 	};
 
-	grain("last");
+	grain("clip");
 
 	my $res = $xbl->post("https://userpresence.xboxlive.com/users/batch?level=all", 3, encode_json($req));
 	my $json;
@@ -104,12 +110,20 @@ sub process_batch	{
 		$dbh->do("begin");
 		if( $jstate ne 'Offline' or defined($j->{lastSeen}))	{
 
-			$num += $dbh->do('insert into xuids1(xuid) values($1) on conflict(xuid) do nothing', undef, $j->{xuid});
-			$dbh->do('delete from xuids0 where xuid=$1', undef, $j->{xuid});
+			$num += $dbh->do('
+				insert into gamers(xuid,countryid,langid) 
+					select 
+						xuid,
+						countryid,
+						langid 
+					from xuids2 
+					where xuid=$1 
+				on conflict(xuid) do nothing', undef, $j->{xuid});
+			$dbh->do('delete from xuids2 where xuid=$1', undef, $j->{xuid});
 
 		} else {
 
-			$dbh->do('update xuids0 set scanned=now() where xuid=$1', undef, $j->{xuid});
+			$dbh->do('update xuids2 set scanned=now() where xuid=$1', undef, $j->{xuid});
 
 		}
 		$dbh->do("commit");

@@ -8,7 +8,7 @@ update progs set num =  0 where prog =   'friendscan';
 update progs set num = 42 where prog =   'localescan';
 update progs set num =  0 where prog =     'playscan';
 update progs set num =  0 where prog =     'clubscan';
-update progs set num = 42 where prog = 'gameclipscan';
+update progs set num =  4 where prog = 'gameclipscan';
 update progs set num =  0 where prog =     'heroscan';
 update progs set num =  0 where prog =   'memberscan';
 update progs set num = 84 where prog =     'presence';

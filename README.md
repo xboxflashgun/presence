@@ -26,6 +26,11 @@ oldscan: "xuids0" -> "xuids1"
 "xuids1" - all online xuids w/o locale
 	xuid
 
+"xuids2" - gamers from gameclipscan, with lang/country
+ 	online?
+		yes: move to gamers
+		no: move to leave there (?)
+
 "gamers" - online xuids with locale
 	+lastutime - updated from presence
 
