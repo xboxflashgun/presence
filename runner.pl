@@ -166,10 +166,24 @@ sub run_progs	{
 			print "lastscan index is up to date\n";
 		} else {
 
-			print "Creating index for lastscan\n";
+			print "Creating index for lastscan:  def=$def, num=$num\n";
 			$dbh->do("drop index xuids0_last_idx");
 			$dbh->do("create index xuids0_last_idx on xuids0((xuid % ${num} ::bigint))");
 
+		}
+
+	}
+
+	if( $prog eq 'profilescan')	{	#
+
+		my $def = ($dbh->selectrow_array("select indexdef from pg_indexes where indexname='profind'"))[0];
+
+		if($def =~ /xuid % \($num\)::bigint/) {
+			print "profind is up-to date\n";
+		} else {
+			print "Creating index for profile:  def=$def, num=$num\n";
+			$dbh->do("drop index profind");
+			$dbh->do('create index profind ON profiles USING btree (((xuid % ($1)::bigint)), scanned NULLS FIRST)', undef, $num);
 		}
 
 	}
@@ -200,6 +214,7 @@ sub run_progs	{
 			print "Creating index xuids1_locind\n";
 			$dbh->do("drop index xuids1_locind");
 			$dbh->do("create index xuids1_locind on xuids1 ((xuid % ${num} ::bigint), scanned nulls first)");
+		}
 
 	}
 

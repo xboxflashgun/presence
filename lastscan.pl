@@ -26,7 +26,7 @@ my %grainer;
 # my $coder = Cpanel::JSON::XS->new->allow_nonref->allow_blessed;
 
 my $dbh = DBI->connect("dbi:Pg:dbname=global;port=6432") || die;
-$dbh->do("insert into progstat values(now(), $$, $div, $div, 'lastscan')");
+$dbh->do("insert into progstat values(now(), $$, $div, $totauth, 'lastscan')");
 $dbh->disconnect;
 
 my $xbl = Xboxnew->new($div);

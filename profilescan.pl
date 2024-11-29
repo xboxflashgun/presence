@@ -23,6 +23,7 @@ my ($div, $totauth) = split ",", $ARGV[0];
 
 my $xbl = Xboxnew->new($div);
 my $dbh = $xbl->dbh;
+$dbh->do("insert into progstat values(now(), $$, $div, $totauth, 'profilescan')");
 
 my $coder = Cpanel::JSON::XS->new->allow_nonref->allow_blessed;
 my %grainer;
@@ -33,7 +34,7 @@ my %grainer;
 
 my $sttime = time + rand(600);
 
-while(1)	{
+while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] > 0)	{
 
 	if(time > $sttime)	{
 	
@@ -54,10 +55,16 @@ while(1)	{
 
 	grain('profile');
 
-	my @xuids = map { $_->[0] } $dbh->selectall_array('select xuid from profiles order by scanned nulls first limit 15');
+	my @xuids = map { $_->[0] } $dbh->selectall_array('select xuid from profiles where xuid % $1 = $2 order by scanned nulls first limit 15', undef, 
+	$totauth, $div);
 	process_batch(\@xuids);
+	$dbh->do('update progstat set uptime=now() where pid=$1', undef, $$);
 
 }
+
+$dbh->do("delete from progstat where pid=$$");
+$xbl->closedbh;
+print "Graceful exit";
 
 
 sub process_batch {

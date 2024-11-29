@@ -31,7 +31,7 @@ my %pres;	# $pres{$xuid}{$titleid} = utime;
 my %delcand;	# $delcand{$xuid}{$titleid} = utime;
 
 my $dbh = DBI->connect("dbi:Pg:dbname=global;port=6432") || die;	# local DB
-$dbh->do("insert into progstat values(now(), $$, $div, $div, 'presence')");
+$dbh->do("insert into progstat values(now(), $$, $div, $totauth, 'presence')");
 $dbh->disconnect;
 
 my $xbl = Xboxnew->new($div);

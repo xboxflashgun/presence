@@ -25,7 +25,7 @@ $|++;
 my %grainer;
 
 my $dbh = DBI->connect("dbi:Pg:dbname=global;port=6432") || die;
-$dbh->do("insert into progstat values(now(), $$, $div, $div, 'localescan')");
+$dbh->do("insert into progstat values(now(), $$, $div, $totauth, 'localescan')");
 $dbh->disconnect;
 
 my $xbl = Xboxnew->new($div);
