@@ -179,7 +179,7 @@ sub process_batch	{
 
 				my $devname = $d->{"type"};
 				use Data::Dumper;
-				print Dumper(\%devices);
+				print Dumper($d);
 				$dbh->do('insert into devices(devid,devname) values ( (select max(devid)+1 from devices), $1)', undef, $devname);
 				die "Unknown device detected: $devname";
 			
