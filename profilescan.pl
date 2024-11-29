@@ -19,6 +19,8 @@ if(@ARGV != 1)  {
 
 }
  
+$|++;
+
 my ($div, $totauth) = split ",", $ARGV[0];
 
 my $xbl = Xboxnew->new($div);
@@ -33,6 +35,11 @@ my %grainer;
 # exit;
 
 my $sttime = time + rand(600);
+my $flush = time + 3600;
+my $cnt = 0;
+my $cntnew = 0;
+
+print " * Started with pid=$$\n";
 
 while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0] > 0)	{
 
@@ -55,10 +62,23 @@ while(($dbh->selectrow_array("select pid from progstat where prog='runner'"))[0]
 
 	grain('profile');
 
-	my @xuids = map { $_->[0] } $dbh->selectall_array('select xuid from profiles where xuid % $1 = $2 order by scanned nulls first limit 15', undef, 
-	$totauth, $div);
-	process_batch(\@xuids);
+	my @xuids = map { $_->[0] } $dbh->selectall_array('select xuid from profiles where xuid % $1 = $2 order by scanned nulls first limit 15', 
+		undef, $totauth, $div);
+
+	$cntnew += process_batch(\@xuids);
+	$cnt += scalar(@xuids);
+	print "Well done cnt=$cnt, cntnew=$cntnew\n";
+
 	$dbh->do('update progstat set uptime=now() where pid=$1', undef, $$);
+	if(time > $flush)	{
+
+		$dbh->do('insert into perflog(num,xuids,secs,prestime,prog) values($1,$2,$3,now(),$4)', undef, $div, $cnt, $cntnew, 'profilescan');
+		print "After 1 hour: $cnt scanned, $cntnew new\n";
+		$flush = time + 3600;
+		$cnt = 0;
+		$cntnew = 0;
+
+	}
 
 }
 
@@ -69,6 +89,7 @@ print "Graceful exit";
 
 sub process_batch {
 
+	my $new = 0;
 	my $xuidlist = shift;
 	my @settings = qw /Gamerscore Gamertag RealName Bio TenureLevel Location GameDisplayPicRaw AccountTier XboxOneRep ModernGamertag ModernGamertagSuffix uniqueModernGamertag Watermarks RealNameOverride HasGamePass/;
 
@@ -94,10 +115,12 @@ sub process_batch {
 		my $gt = $sets{Gamertag};
 		delete $sets{Gamertag};
 
-		$dbh->do('insert into profiles(xuid,scanned,gt,profile) values($1,now(),$2,$3) on conflict(xuid) do update
+		$new += $dbh->do('insert into profiles(xuid,scanned,gt,profile) values($1,now(),$2,$3) on conflict(xuid) do update
 			set scanned=now(),gt=$2,profile=$3', undef, $xuid, $gt, $coder->encode(\%sets));
 
 	}
+
+	return $new;
 
 }
 

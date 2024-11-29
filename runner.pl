@@ -105,7 +105,7 @@ sub check_progs	{
 
 			next if $num eq 0;
 
-			print "Old $prog.pl($pid) authid=$authid 0? ($uname), banned = $banned, killing\n";
+			print "Old $prog.pl($pid) authid=$authid, banned = $banned, killing\n";
 
 			print "    > ";
 			system("kill $pid");
@@ -120,9 +120,9 @@ sub check_progs	{
 
 			}
 
-			print "  > Restarting $prog.pl $div,$num\n";
+			print "  > Restarting $prog.pl $authid,$num\n";
 			sleep 3;
-			system("/usr/bin/nohup ./$prog.pl $div,$num >> logs/$prog.$div.log 2>&1 &");
+			system("/usr/bin/nohup ./$prog.pl $authid,$num >> logs/$prog.$authid.log 2>&1 &");
 
 		}
 
