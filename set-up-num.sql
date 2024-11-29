@@ -12,6 +12,7 @@ update progs set num =  4 where prog = 'gameclipscan';
 update progs set num =  0 where prog =     'heroscan';
 update progs set num =  0 where prog =   'memberscan';
 update progs set num = 84 where prog =     'presence';
+update progs set num = 43 where prog =  'profilescan';
 update progs set num =  1 where prog =     'lastscan';
 update progs set num = 83 where prog =    'brutescan';
 

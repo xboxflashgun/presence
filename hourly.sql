@@ -6,7 +6,7 @@ begin;
 		select 
 			now() as hdate,
 			count(*) as gamers,
-			count(*) filter (where lastutime>extract(epoch from now()-interval'1 week')::int) as weekgamers
+			count(*) filter (where lastutime >= extract(epoch from now()-interval'1 week')::int) as weekgamers
 		from gamers;
 
 	create temp table t2 as 
